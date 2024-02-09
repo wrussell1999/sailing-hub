@@ -1,0 +1,40 @@
+version: '3'
+
+services:
+
+  caddy:
+    image: caddy:2
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    env_file: .env
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile
+      - caddy_data:/data
+      - caddy_config:/config
+
+  app:
+    build: .
+    links:
+      - db
+    env_file: .env
+    restart: always
+
+  db:
+    image: mysql:5.7
+    platform: linux/x86_64
+    restart: always
+    environment:
+      MYSQL_DATABASE: 'db'
+    env_file: .env
+    ports:
+      - '3306:3306'
+    volumes:
+      - database:/var/lib/mysql
+
+    
+volumes:
+  caddy_data:
+  caddy_config:
+  database:
